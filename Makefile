@@ -105,3 +105,26 @@ debug: build/kernel .gdbinit
 	$(QEMU) $(QEMUOPTS) -S $(QEMUGDB) &
 	sleep 1
 	$(GDB)
+
+local_setenv:
+	cd /usr/local && sudo wget https://static.dev.sifive.com/dev-tools/freedom-tools/v2020.08/riscv64-unknown-elf-gcc-10.1.0-2020.08.2-x86_64-linux-ubuntu14.tar.gz
+	cd /usr/local && sudo tar xzf riscv64-unknown-elf-gcc-10.1.0-2020.08.2-x86_64-linux-ubuntu14.tar.gz
+	cd /usr/local && sudo mv riscv64-unknown-elf-gcc-10.1.0-2020.08.2-x86_64-linux-ubuntu14 riscv64-unknown-elf-gcc
+	export PATH="/usr/local/riscv64-unknown-elf-gcc/bin:$PATH"
+	cd /usr/local && sudo wget -O riscv64-linux-musl-cross.tgz https://cloud.tsinghua.edu.cn/f/b07bac9bcfa14f1dae66/?dl=1
+	cd /usr/local && sudo tar xzf riscv64-linux-musl-cross.tgz
+	export PATH="/usr/local/riscv64-linux-musl-cross/bin:$PATH"
+	sudo apt install cmake
+
+codespaces_setenv:
+	sudo apt install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
+              gawk build-essential bison flex texinfo gperf libtool patchutils bc \
+              zlib1g-dev libexpat-dev pkg-config  libglib2.0-dev libpixman-1-dev git tmux python3 -y
+	cd .. && wget https://download.qemu.org/qemu-5.0.0.tar.xz
+	cd .. && tar xf qemu-5.0.0.tar.xz
+	cd .. && cd qemu-5.0.0
+	cd ../qemu-5.0.0 && ./configure --target-list=riscv64-softmmu,riscv64-linux-user
+	cd ../qemu-5.0.0 && make -j$(nproc)
+	cd ../qemu-5.0.0 && sudo make install
+	qemu-system-riscv64 --version
+	qemu-riscv64 --version
